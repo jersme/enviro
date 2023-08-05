@@ -15,12 +15,6 @@ class JSONLogger():
 
 json_logger = JSONLogger('log.json')
 
-print("""gas.py - Print readings from the MICS6814 Gas sensor.
-
-Press Ctrl+C to exit!
-
-""")
-
 try:
     while True:
         readings = gas.read_all()
