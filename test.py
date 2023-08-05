@@ -24,12 +24,14 @@ Press Ctrl+C to exit!
 try:
     while True:
         readings = gas.read_all()
-        # convert the readings object to a dictionary if it's not
-        if not isinstance(readings, dict):
-            readings = readings.__dict__
-        # add a timestamp to your readings
-        readings["timestamp"] = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime())
-        json_logger.log(readings)
+        # manually create a dictionary from the readings
+        readings_dict = {
+            "oxidising": readings.oxidising,
+            "reducing": readings.reducing,
+            "nh3": readings.nh3,
+            "timestamp": time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime())
+        }
+        json_logger.log(readings_dict)
         time.sleep(1.0)
 except KeyboardInterrupt:
     pass
