@@ -15,6 +15,7 @@ try:
 except ImportError:
     import ltr559
 
+# BME280 and SMBus setup
 bus = SMBus(1)
 bme280 = BME280(i2c_dev=bus)
 
@@ -28,20 +29,13 @@ def get_cpu_temperature():
 factor = 2.25  # Tuning factor for compensation
 cpu_temps = [get_cpu_temperature()] * 5
 
-# Create LCD class instance.
-disp = ST7735.ST7735(
-    port=0,
-    cs=1,
-    dc=9,
-    backlight=12,
-    rotation=270,
-    spi_speed_hz=10000000
-)
+# ST7735 Display setup
+disp = ST7735.ST7735(port=0, cs=1, dc=9, backlight=12, rotation=270, spi_speed_hz=10000000)
+disp.begin()  # Initialize display
+WIDTH = disp.width
+HEIGHT = disp.height
 
-# Initialize display.
-disp.begin()
-
-# Text settings.
+# Text settings
 font_size = 10
 font = ImageFont.truetype(UserFont, font_size)
 text_colour = (255, 255, 255)
@@ -51,74 +45,61 @@ back_colour = (0, 170, 170)
 conn = sqlite3.connect('sensor_readings.db')
 cursor = conn.cursor()
 
-# Create table if not exists
+# Create table if it doesn't exist
 cursor.execute('''
     CREATE TABLE IF NOT EXISTS readings
     (timestamp TEXT, oxidising REAL, reducing REAL, nh3 REAL, lux REAL, proximity REAL, compensated_temperature REAL, pressure REAL, humidity REAL)
 ''')
 
-print("""Print readings from the MICS6814 Gas sensor, BME280 sensor and LTR559 Light & Proximity sensor.
-Press Ctrl+C to exit!
-""")
+print("Press Ctrl+C to exit!")
 
 messages = []
 message_index = 0
 
 try:
     while True:
-        gas_readings = gas.read_all()  # Get the gas sensor readings
-        lux = float(ltr559.get_lux())  # Get the light reading
-        prox = float(ltr559.get_proximity())  # Get the proximity reading
+        # Get sensor readings
+        gas_readings = gas.read_all()
+        lux = float(ltr559.get_lux())
+        prox = float(ltr559.get_proximity())
 
+        # Calculate compensated temperature
         cpu_temp = get_cpu_temperature()
         cpu_temps = cpu_temps[1:] + [cpu_temp]
         avg_cpu_temp = sum(cpu_temps) / float(len(cpu_temps))
         raw_temp = bme280.get_temperature()
         comp_temp = raw_temp - ((avg_cpu_temp - raw_temp) / factor)
 
-        # Get pressure and humidity from BME280
+        # Get additional weather data
         pressure = bme280.get_pressure()
         humidity = bme280.get_humidity()
 
-        # Construct data tuple for SQLite
+        # Prepare data for SQLite
         data_tuple = (time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime()), gas_readings.oxidising, gas_readings.reducing, gas_readings.nh3, lux, prox, comp_temp, pressure, humidity)
         print(data_tuple)  # Print the readings
 
-        # Insert a row of data
+        # Insert data into SQLite database
         cursor.execute('INSERT INTO readings VALUES (?,?,?,?,?,?,?,?,?)', data_tuple)
+        conn.commit()  # Commit changes
 
-        # Commit changes
-        conn.commit()
+        # Prepare sensor readings for display
+        messages = ["Ox: {:.2f}".format(gas_readings.oxidising), "Red: {:.2f}".format(gas_readings.reducing), "NH3: {:.2f}".format(gas_readings.nh3), 
+                    "Lux: {:.2f}".format(lux), "Prox: {:.2f}".format(prox), "Temp: {:.2f} *C".format(comp_temp), "Pressure: {:.2f} hPa".format(pressure),
+                    "Humidity: {:.2f} %".format(humidity)]
 
-        # Store sensor readings in messages list
-        messages = [
-            "Ox: {:.2f}".format(gas_readings.oxidising),
-            "Red: {:.2f}".format(gas_readings.reducing),
-            "NH3: {:.2f}".format(gas_readings.nh3),
-            "Lux: {:.2f}".format(lux),
-            "Prox: {:.2f}".format(prox),
-            "Temp: {:.2f} *C".format(comp_temp),
-            "Pressure: {:.2f} hPa".format(pressure),
-            "Humidity: {:.2f} %".format(humidity)
-        ]
-
-        # New canvas to draw on.
+        # Create new image, draw background and text
         img = Image.new('RGB', (WIDTH, HEIGHT), color=(0, 0, 0))
         draw = ImageDraw.Draw(img)
-
-        # Draw background rectangle and write text.
         draw.rectangle((0, 0, 160, 80), back_colour)
         y = (HEIGHT / 2) - (font_size / 2)
         draw.text((0, y), messages[message_index], font=font, fill=text_colour)
-        disp.display(img)
+        disp.display(img)  # Display image
 
-        # Update message index to cycle through sensor readings
+        # Cycle through sensor readings for display
         message_index = (message_index + 1) % len(messages)
 
         time.sleep(30.0)  # Sleep for 30 seconds
 except KeyboardInterrupt:
-    # Turn off backlight on control-c
-    disp.set_backlight(0)
+    disp.set_backlight(0)  # Turn off backlight on Ctrl+C
 finally:
-    # Close the connection to the database
-    conn.close()
+    conn.close()  # Close SQLite connection
