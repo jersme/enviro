@@ -43,7 +43,7 @@ WIDTH = disp.width
 HEIGHT = disp.height
 
 # Text settings.
-font_size = 12  # Decreased font size for more info on display
+font_size = 10  # Reduced font size for more info on display
 font = ImageFont.truetype(UserFont, font_size)
 text_colour = (255, 255, 255)
 back_colour = (0, 170, 170)
@@ -80,19 +80,19 @@ try:
         # New canvas to draw on.
         img = Image.new('RGB', (WIDTH, HEIGHT), color=(0, 0, 0))
         draw = ImageDraw.Draw(img)
-        message = "Ox: {:.2f} Red: {:.2f} NH3: {:.2f} Lux: {:.2f} Prox: {:.2f}".format(
-            gas_readings.oxidising, gas_readings.reducing, gas_readings.nh3, lux, prox
-        )
-
-        size_x, size_y = draw.textsize(message, font)
-
-        # Calculate text position
-        x = (WIDTH - size_x) / 2
-        y = (HEIGHT / 2) - (size_y / 2)
+        messages = [
+            "Ox: {:.2f}".format(gas_readings.oxidising),
+            "Red: {:.2f}".format(gas_readings.reducing),
+            "NH3: {:.2f}".format(gas_readings.nh3),
+            "Lux: {:.2f}".format(lux),
+            "Prox: {:.2f}".format(prox)
+        ]
 
         # Draw background rectangle and write text.
         draw.rectangle((0, 0, 160, 80), back_colour)
-        draw.text((x, y), message, font=font, fill=text_colour)
+        for i, message in enumerate(messages):
+            y = (HEIGHT / 6) * i
+            draw.text((0, y), message, font=font, fill=text_colour)
         disp.display(img)
 
         time.sleep(1.0)  # Sleep for a second
