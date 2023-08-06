@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+#!/usr/bin/env python3
+
 import time
 import sqlite3
 from enviroplus import gas
@@ -13,6 +15,13 @@ from pms5003 import PMS5003
 # BME280 and SMBus setup
 bus = SMBus(1)
 bme280 = BME280(i2c_dev=bus)
+
+# Initialize ltr559
+try:
+    from ltr559 import LTR559
+    ltr559 = LTR559()
+except ImportError:
+    import ltr559
 
 # PMS5003 setup
 pms5003 = PMS5003(device='/dev/ttyAMA0', baudrate=9600, pin_enable=22, pin_reset=27)
