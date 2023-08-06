@@ -59,9 +59,12 @@ print("Press Ctrl+C to exit!")
 
 messages = []
 message_index = 0
+last_update_time = None  # Store the time of the last update
 
 try:
     while True:
+        current_time = time.time()  # Current time in seconds
+        
         # Gather sensor readings
         gas_readings = gas.read_all()
         lux = float(ltr559.get_lux())
@@ -79,8 +82,8 @@ try:
         humidity = bme280.get_humidity()
 
         # Prepare and insert data into SQLite database
-        current_time = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime())
-        cursor.execute('INSERT INTO readings VALUES (?,?,?,?,?,?,?,?,?)', (current_time, gas_readings.oxidising, gas_readings.reducing, gas_readings.nh3, lux, prox, comp_temp, pressure, humidity))
+        formatted_time = time.strftime('%Y-%m-%d %H:%M:%S', time.gmtime(current_time))
+        cursor.execute('INSERT INTO readings VALUES (?,?,?,?,?,?,?,?,?)', (formatted_time, gas_readings.oxidising, gas_readings.reducing, gas_readings.nh3, lux, prox, comp_temp, pressure, humidity))
         conn.commit()
 
         # Prepare readings for display
@@ -95,6 +98,9 @@ try:
             "Humidity: {:.2f} %".format(humidity)
         ]
 
+        # Calculate time since last update in minutes
+        time_since_last_update = int((current_time - last_update_time) / 60) if last_update_time else 0
+
         # Create image, draw background and sensor readings text
         img = Image.new('RGB', (WIDTH, HEIGHT), color=(0, 0, 0))
         draw = ImageDraw.Draw(img)
@@ -104,11 +110,14 @@ try:
         y = (HEIGHT / 4) - (font_size / 2)  
         draw.text((0, y), messages[message_index], font=font, fill=text_colour)
         
-        # Draw update time below main message
+        # Draw update time and time since last update
         update_time_y = y + font_size + 5
-        draw.text((0, update_time_y), "Updated: {}".format(current_time), font=update_time_font, fill=text_colour)
+        draw.text((0, update_time_y), "Updated: {} ({} min ago)".format(formatted_time, time_since_last_update), font=update_time_font, fill=text_colour)
         
         disp.display(img)
+
+        # Update the last update time
+        last_update_time = current_time
 
         # Rotate messages
         message_index = (message_index + 1) % len(messages)
