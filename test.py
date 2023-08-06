@@ -103,15 +103,19 @@ try:
             "Humidity: {:.2f} %".format(humidity),
             "PM1: {:.2f}".format(pm1),
             "PM2.5: {:.2f}".format(pm2_5),
-            "PM10: {:.2f}".format(pm10),
-            "Updated: {:.1f} min ago".format(time_since_update)
+            "PM10: {:.2f}".format(pm10)
         ]
 
         img = Image.new('RGB', (WIDTH, HEIGHT), color=(0, 0, 0))
         draw = ImageDraw.Draw(img)
         draw.rectangle((0, 0, 160, 80), back_colour)
-        y = (HEIGHT / 2) - (font_size / 2)
+
+        y = (HEIGHT / 3) - (font_size / 2)
         draw.text((0, y), messages[message_index], font=font, fill=text_colour)
+        
+        # Drawing the time since the last update at the bottom
+        draw.text((0, HEIGHT - font_size - 5), "Updated: {:.1f} min ago".format(time_since_update), font=font, fill=text_colour)
+        
         disp.display(img)
 
         message_index = (message_index + 1) % len(messages)
