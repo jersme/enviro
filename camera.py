@@ -11,7 +11,7 @@ def capture_image(output_path):
         print(f'Failed to capture image. Error: {result.stderr.decode()}')
 
 # Path to save the captured image
-output_path = '/path/to/your/image.jpg'
+output_path = '/home/jeroen/camtest/pyhon_img.jpg'
 
 # Capture the image
 capture_image(output_path)
