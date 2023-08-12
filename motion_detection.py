@@ -1,24 +1,29 @@
-Certainly! Here's the complete code including the README, setup instructions, and the script to monitor a camera on Raspberry Pi, detect motion, and record videos:
-
-```python
 """
 README:
 This script monitors a camera on Raspberry Pi and records a video when motion is detected.
 
-SETUP:
-1. Install the required libraries using the following commands:
-   sudo apt-get install libhdf5-dev libhdf5-serial-dev libhdf5-100
-   sudo apt-get install libqtgui4 libqtwebkit4 libqt4-test python3-pyqt5
-   sudo apt-get install libatlas-base-dev
-   sudo apt-get install libjasper-dev
-   pip3 install opencv-python-headless
+SETUP for Raspbian 32-bit Lite:
+1. Update the system:
+   sudo apt-get update
+   sudo apt-get upgrade
+
+2. Install required dependencies:
+   sudo apt-get install libhdf5-dev libhdf5-serial-dev libatlas-base-dev libjasper-dev libqtgui4 libqt4-test
+
+3. Install pip (if not installed):
+   sudo apt-get install python3-pip
+
+4. Install OpenCV:
+   sudo pip3 install opencv-contrib-python-headless
+
+5. Install imutils:
    pip3 install imutils
 
-2. Connect a compatible camera to your Raspberry Pi.
+6. Connect a compatible camera to your Raspberry Pi.
 
 RUNNING THE SCRIPT:
 You can run the script with the following command:
-   python script.py --prefix PREFIX --duration DURATION --path PATH
+   python3 script.py --prefix PREFIX --duration DURATION --path PATH
 
 ARGUMENTS:
   --prefix  : Prefix for the video name (default: motion_detected)
@@ -26,7 +31,7 @@ ARGUMENTS:
   --path    : Path to save the recorded videos (default: current directory)
 
 EXAMPLE:
-   python script.py --prefix my_video --duration 60 --path /path/to/save
+   python3 script.py --prefix my_video --duration 60 --path /path/to/save
 
 This example will set the video name prefix to 'my_video', recording duration to 60 seconds, and save the videos to '/path/to/save'.
 """
@@ -105,9 +110,6 @@ while True:
 
     prev_frame = gray
 
-    # Uncomment below line to see the video feed
-    # cv2.imshow("Security Feed", frame)
-
     # Break the loop if the 'q' key is pressed
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
@@ -115,4 +117,3 @@ while True:
 # Clean up
 camera.release()
 cv2.destroyAllWindows()
-```
