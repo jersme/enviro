@@ -37,7 +37,7 @@ def capture_images_every_minute(directory):
         time.sleep(60)
 
 # Directory to save the captured images
-directory = '/home/jeroen/camtest/series'
+directory = '/home/jeroen/nas'
 
 # Start capturing images every minute
 capture_images_every_minute(directory)
