@@ -116,5 +116,3 @@ while True:
 camera.release()
 cv2.destroyAllWindows()
 ```
-
-You can save this code in a file, such as `script.py`, and run it following the instructions in the README section.
