@@ -42,7 +42,7 @@ def capture_image(output_path, rotation_angle):
     except Exception as e:
         print(f'An unexpected error occurred: {str(e)}')
 
-def capture_images_every_minute(directory, sleep_time, rotation_angle):
+def capture_and_rotate_images_periodically(directory, sleep_time, rotation_angle):
     if not os.path.exists(directory):
         os.makedirs(directory)
     while True:
@@ -57,4 +57,4 @@ if __name__ == "__main__":
     parser.add_argument('--sleep_time', type=int, default=60, help='Time to sleep between captures in seconds.')
     parser.add_argument('--rotation_angle', type=int, default=90, help='Angle to rotate the image in degrees.')
     args = parser.parse_args()
-    capture_images_every_minute(args.directory, args.sleep_time, args.rotation_angle)
+    capture_and_rotate_images_periodically(args.directory, args.sleep_time, args.rotation_angle)
