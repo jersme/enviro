@@ -53,7 +53,7 @@ def capture_and_rotate_images_periodically(directory, sleep_time, rotation_angle
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Capture and rotate images.")
-    parser.add_argument('--directory', type=str, default='/home/jeroen/nas', help='Directory to save captured images.')
+    parser.add_argument('--directory', type=str, default='/mnt/nas', help='Directory to save captured images.')
     parser.add_argument('--sleep_time', type=int, default=60, help='Time to sleep between captures in seconds.')
     parser.add_argument('--rotation_angle', type=int, default=90, help='Angle to rotate the image in degrees.')
     args = parser.parse_args()
