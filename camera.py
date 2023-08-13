@@ -10,7 +10,7 @@ How to Run:
    python capture_images.py --directory /path/to/save/images --sleep_time 60 --rotation_angle 90
 
 Arguments:
-- --directory: Specifies the directory where the images will be saved (default: '/home/jeroen/nas').
+- --directory: Specifies the directory where the images will be saved (default: '/mnt/nas').
 - --sleep_time: Specifies the time in seconds to wait between capturing images (default: 60).
 - --rotation_angle: Specifies the angle in degrees by which the image will be rotated (default: 90).
 
@@ -76,7 +76,7 @@ def capture_and_rotate_images_periodically(directory, sleep_time, rotation_angle
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Capture and rotate images.")
-    parser.add_argument('--directory', type=str, default='/home/jeroen/nas', help='Directory to save captured images.')
+    parser.add_argument('--directory', type=str, default='/mnt/nas', help='Directory to save captured images.')
     parser.add_argument('--sleep_time', type=int, default=60, help='Time to sleep between captures in seconds.')
     parser.add_argument('--rotation_angle', type=int, default=90, help='Angle to rotate the image in degrees.')
     parser.add_argument('--location', type=str, default='Amsterdam, The Netherlands', help='Location to add to the image.')
